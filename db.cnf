@@ -1,0 +1,7 @@
+[client]
+user = leoh123
+password = 123123123
+host = 172.23.23.68
+port = 3306
+database = leoh_oa_back_django
+default-character-set = utf8
