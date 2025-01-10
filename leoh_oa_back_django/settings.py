@@ -33,9 +33,10 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
+    # 'django.contrib.sessions',
+    # 'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'corsheaders',
     'apps.oaauth'
@@ -43,13 +44,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",    # 跨域中间件 django-cors-headers，需在CommonMiddleware前面执行
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',  # 前后端分离，不需要CSRF保护
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.oaauth.middlewares.LoginCheckMiddleware',
 ]
 
 ROOT_URLCONF = 'leoh_oa_back_django.urls'
@@ -65,7 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                # 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -136,3 +138,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 # 覆盖django自带的User模型
 # 'app.User模型名'
 AUTH_USER_MODEL = 'oaauth.OAUser'
+
+
+REST_FRAMEWORK = {
+    # 自动鉴权使用的类
+    'DEFAULT_AUTHENTICATION_CLASSES': ('apps.oaauth.authentications.UserTokenAuthentication',),
+}

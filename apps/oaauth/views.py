@@ -5,6 +5,7 @@ from .serializers import LoginSerializer, UserSerializer
 from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 class LoginView(APIView):
     def post(self, request):
@@ -22,3 +23,12 @@ class LoginView(APIView):
             # drf在返回响应是非200的时候，他的错误参数名叫detail
             return Response({'detail': detail}, status=status.HTTP_400_BAD_REQUEST)
 
+
+# class AuthenticatedRequiredView(APIView):
+#     permission_classes = (IsAuthenticated,)
+
+class ResetPasswordView(APIView):
+    def post(self, request):
+        print(request)
+        print(request.user)
+        return Response({"message": "Reset password"})

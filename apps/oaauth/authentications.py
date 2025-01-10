@@ -1,7 +1,7 @@
 import jwt
 import time
 from django.conf import settings
-from rest_framework.authentication import BaseAuthentication, get_authorization_header
+from rest_framework.authentication import BaseAuthentication, get_authorization_header, TokenAuthentication
 from rest_framework import exceptions
 from apps.oaauth.models import OAUser
 
@@ -44,10 +44,12 @@ class JWTAuthentication(BaseAuthentication):
         try:
             # 解密的算法和key必须和加密的算法保持一致
             jwt_token = auth[1]
-            payload = jwt.decode(jwt_token, settings.SECRET_KEY, algorithms=["HS256"])
-            userid = payload.get("user")
+            jwt_info = jwt.decode(jwt_token, settings.SECRET_KEY, algorithms=["HS256"])
+            userid = jwt_info.get("user")
             try:
+                # 绑定当前user到request对象上
                 user = OAUser.objects.get(pk=userid)
+                setattr(request, 'user', user)
                 return (user, jwt_token)
             except Exception:
                 msg = '用户信息错误！'
@@ -59,3 +61,11 @@ class JWTAuthentication(BaseAuthentication):
             msg = 'token已过期！'
             raise exceptions.AuthenticationFailed(msg)
 
+
+
+# 在middlewares中间件检查完毕后， 执行的 DEFAULT_AUTHENTICATION_CLASSES 设置的自动鉴权使用的类
+class UserTokenAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        # request 是 rest_framework.request.Request 对象
+        # request._request 是 django.http.request.HttpRequest 对象
+        return request._request.user, request._request.auth
