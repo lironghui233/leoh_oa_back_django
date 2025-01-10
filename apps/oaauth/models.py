@@ -41,7 +41,7 @@ class OAUserManager(BaseUserManager):
         """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("status", UserStatusChoices.ACTIVE)
+        extra_fields.setdefault("status", UserStatusChoices.ACTIVED)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("超级用户必须设置 is_staff=True.")
@@ -66,6 +66,8 @@ class OAUser(AbstractBaseUser, PermissionsMixin):
     status = models.IntegerField(choices=UserStatusChoices, default=UserStatusChoices.UNACTIVE)
     date_joined = models.DateTimeField(auto_now_add=True)
 
+    department = models.ForeignKey('OADepartment', null=True, on_delete=models.SET_NULL, related_name='staffs', related_query_name='staffs')
+
     objects = OAUserManager()
 
     EMAIL_FIELD = "email"
@@ -83,3 +85,12 @@ class OAUser(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.realname
+
+
+class OADepartment(models.Model):
+    name = models.CharField(max_length=100)
+    introduction = models.TextField()
+    # leader
+    leader = models.OneToOneField(OAUser, null=True ,related_name="leader_department", related_query_name="leader_department", on_delete=models.SET_NULL)
+    # manager
+    manager = models.ForeignKey(OAUser, null=True, related_name="manager_departments", related_query_name="manager_departments", on_delete=models.SET_NULL)
