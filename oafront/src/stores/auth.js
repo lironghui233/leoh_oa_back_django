@@ -37,8 +37,9 @@ export const useAuthStore = defineStore('auth', () => {
   }) 
 
   let token = computed(()=>{
-    if(!_token.value){
+    if(Object.keys(_token.value).length == 0){
         let token_str = localStorage.getItem(TOKEN_KEY)
+        
         if(token_str){
           _token.value = token_str
         }
