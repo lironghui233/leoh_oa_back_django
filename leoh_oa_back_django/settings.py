@@ -39,7 +39,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
-    'apps.oaauth'
+    'apps.oaauth',
+    'apps.absent',
 ]
 
 MIDDLEWARE = [
@@ -143,4 +144,9 @@ AUTH_USER_MODEL = 'oaauth.OAUser'
 REST_FRAMEWORK = {
     # 自动鉴权使用的类
     'DEFAULT_AUTHENTICATION_CLASSES': ('apps.oaauth.authentications.UserTokenAuthentication',),
+    # 自动分页使用的类
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
 }
+
+APPEND_SLASH=False
