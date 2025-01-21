@@ -32,6 +32,13 @@ class LoginCheckMiddleware(MiddlewareMixin):
             request.auth = None
             return None
 
+        # 如果访问 media 资源，不需要登陆
+        if request.path.startswith(settings.MEDIA_URL):
+            # 此处的 request 是 django.http.request.HttpRequest 对象
+            request.user = AnonymousUser()
+            request.auth = None
+            return None
+
         # 检查用户是否已经登录
         try:
             auth = get_authorization_header(request).split()

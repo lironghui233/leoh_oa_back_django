@@ -2,7 +2,7 @@
 import {ref, defineModel, defineProps, defineEmits} from 'vue';
 
 // 定义model：父子双向绑定的变量
-let dialoVisible = defineModel({required: true})
+let dialogVisible = defineModel({required: true})
 
 // 定义属性：接受父类传来的变量
 let props = defineProps({
@@ -20,7 +20,7 @@ let props = defineProps({
 let emits = defineEmits(['cancel', 'submit'])
 
 const onCancel = () => {
-    dialoVisible.value = false
+    dialogVisible.value = false
     emits('cancel')
 }
 
@@ -32,7 +32,7 @@ const onSubmit = () => {
 
 
 <template>
-    <el-dialog v-model="dialoVisible" :title="props.title" :width="props.width">
+    <el-dialog v-model="dialogVisible" :title="props.title" :width="props.width">
         <slot></slot>
         <template #footer>
             <div class="dialog-footer">

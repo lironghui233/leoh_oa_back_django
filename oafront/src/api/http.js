@@ -82,6 +82,23 @@ class Http{
             }
         )
     }
+
+    delete(path){
+        // return this.instance.delete(path)
+        return new Promise(
+            async (resolve, reject) => {
+                try{                    
+                    let result = await this.instance.delete(path)
+                    // 因为服务端的delete方法，只是返回一个状态码，并没有数据，所以直接把result返回即可
+                    resolve(result)
+                }catch(err){
+                    // 请求失败 (status != 200)
+                    let detail = err.response.data.detail
+                    reject(detail)
+                }
+            }
+        )
+    }
 }
 
 export default new Http()
