@@ -39,8 +39,12 @@ class Http{
                     resolve(result.data)
                 }catch(err){
                     // 请求失败 (status != 200)
-                    let detail = err.response.data.detail
-                    reject(detail)
+                    try{
+                        let detail = err.response.data.detail
+                        reject(detail)
+                    }catch{
+                        reject('服务器错误！')
+                    }
                 }
             }
         )
@@ -50,13 +54,17 @@ class Http{
         // return this.instance.get(path, params)
         return new Promise( async (resolve, reject) => {
             try{
-                let result = await this.instance.get(path, params)
+                let result = await this.instance.get(path, {params})
                 // 请求成功 (status == 200)
                 resolve(result.data)
             }catch(err){
                 // 请求失败 (status != 200)
-                let detail = err.response.data.detail
-                reject(detail)
+                try{
+                    let detail = err.response.data.detail
+                    reject(detail)
+                }catch{
+                    reject('服务器错误！')
+                }
             }
         })
     }
@@ -76,8 +84,12 @@ class Http{
                     resolve(result.data)
                 }catch(err){
                     // 请求失败 (status != 200)
-                    let detail = err.response.data.detail
-                    reject(detail)
+                    try{
+                        let detail = err.response.data.detail
+                        reject(detail)
+                    }catch{
+                        reject('服务器错误！')
+                    }
                 }
             }
         )
@@ -93,11 +105,37 @@ class Http{
                     resolve(result)
                 }catch(err){
                     // 请求失败 (status != 200)
-                    let detail = err.response.data.detail
-                    reject(detail)
+                    try{
+                        let detail = err.response.data.detail
+                        reject(detail)
+                    }catch{
+                        reject('服务器错误！')
+                    }
                 }
             }
         )
+    }
+
+    downloadFile(path, params){
+        // return this.instance.get(path, params)
+        return new Promise( async (resolve, reject) => {
+            try{
+                let result = await this.instance.get(path, {
+                    params,
+                    responseType:"blob"
+                })
+                // 请求成功 (status == 200)
+                resolve(result.data)
+            }catch(err){
+                // 请求失败 (status != 200)
+                try{
+                    let detail = err.response.data.detail
+                    reject(detail)
+                }catch{
+                    reject('服务器错误！')
+                }
+            }
+        })
     }
 }
 

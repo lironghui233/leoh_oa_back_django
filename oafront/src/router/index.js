@@ -1,34 +1,13 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import login from '@/views/login/login.vue';
-import frame from '@/views/main/frame.vue';
-import myabsent from '@/views/absent/my.vue';
-import subabsent from '@/views/absent/sub.vue';
 import { useAuthStore } from '@/stores/auth';
-import inform_detail from '@/views/inform/detail.vue';
-import inform_publish from '@/views/inform/publish.vue';
-import inform_list from '@/views/inform/list.vue';
+import frame_routes from "@/router/frame"
+import login_routes from "@/router/login"
 
 const router = createRouter({
+  // 创建一个基于 hash 模式 的路由历史记录管理器。
+  //// Hash 模式：在 URL 中使用 # 符号来模拟路由。
   history: createWebHashHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'frame',
-      component: frame,
-      children:[
-        {path:'absent/my', name:'myabsent', component: myabsent},
-        {path:'absent/sub', name:'subabsent', component: subabsent},
-        {path:'absent/publish', name:'inform_publish', component: inform_publish},
-        {path:'absent/list', name:'inform_list', component: inform_list},
-        {path:'absent/detail/:pk', name:'inform_detail', component: inform_detail},
-      ]
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: login,
-    },
-  ],
+  routes: frame_routes.concat(login_routes)
 })
 
 router.beforeEach((to, from)=>{

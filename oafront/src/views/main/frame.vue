@@ -1,17 +1,22 @@
 <script setup name="frame">
 
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, onMounted } from 'vue';
 import { Expand, Fold } from '@element-plus/icons-vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import authHttp from '@/api/authHttp';
 import { ElMessage } from 'element-plus';
+import routes from '@/router/frame';
 
 const authStore = useAuthStore()
 const router = useRouter()
 
 
+let displayUser = reactive({
+    department: {},
+    realname: '',
+})
 let isCollapse = ref(false)
 let dialogVisible = ref(false)
 let formLabelWidth = "99px"
@@ -78,6 +83,13 @@ const onControlResetPwdDialog = () => {
     dialogVisible.value= true
 }
 
+let defaultActive = ref("home")
+onMounted(()=>{
+    defaultActive.value = router.currentRoute.value.name
+    displayUser.department = authStore.user.department
+    displayUser.realname = authStore.user.realname
+})
+
 </script>
 
 
@@ -86,73 +98,38 @@ const onControlResetPwdDialog = () => {
         <el-aside class="aside" :width="asideWidth">
             <RouterLink to="/" class="brand"><strong>leoh</strong> <span v-show="!isCollapse">OA系统</span></RouterLink>
             <el-menu :router="true" active-text-color="#ffd04b" background-color="#343a40" class="el-menu-vertical-demo"
-                default-active="1" text-color="#fff" :collapse="isCollapse" :collapse-transition="false">
-                <el-menu-item index="1">
-                    <el-icon>
-                        <HomeFilled />
-                    </el-icon>
-                    <span>首页</span>
-                </el-menu-item>
-                <el-sub-menu index="2">
-                    <template #title>
-                        <el-icon>
-                            <Checked />
-                        </el-icon>
-                        <span>考勤管理</span>
+                :default-active="defaultActive" text-color="#fff" :collapse="isCollapse" :collapse-transition="false">
+
+                <template v-for="route in routes[0].children">
+                    <template v-if="authStore.has_permission(route.meta.permissions, route.meta.opt)">
+                        <el-menu-item v-if="!route.children" :index="route.name" :route="{ name: route.name }">
+                            <el-icon>
+                                <component :is="route.meta.icon"></component>
+                            </el-icon>
+                            <span>{{ route.meta.text }}</span>
+                        </el-menu-item>
+    
+                        <el-sub-menu v-else :index="route.name">
+                            <template #title>
+                                <el-icon>
+                                    <component :is="route.meta.icon"></component>
+                                </el-icon>
+                                <span>{{ route.meta.text }}</span>
+                            </template>
+                            <template v-for="child in route.children">
+                                <template v-if="authStore.has_permission(child.meta.permissions, child.meta.opt)">
+                                    <el-menu-item v-if="!child.meta.hidden" :index="child.name" :route="{ name: child.name }">
+                                        <el-icon>
+                                            <component :is="child.meta.icon"></component>
+                                        </el-icon>
+                                        <span>{{ child.meta.text }}</span>
+                                    </el-menu-item>
+                                </template>
+                            </template>
+                        </el-sub-menu>
                     </template>
-                    <el-menu-item index="2-1" :route="{name:'myabsent'}">
-                        <el-icon>
-                            <UserFilled />
-                        </el-icon>
-                        <span>个人考勤</span>
-                    </el-menu-item>
-                    <el-menu-item index="2-2" :route="{name:'subabsent'}">
-                        <el-icon>
-                            <User />
-                        </el-icon>
-                        <span>下属考勤</span>
-                    </el-menu-item>
-                </el-sub-menu>
-                <el-sub-menu index="3">
-                    <template #title>
-                        <el-icon>
-                            <BellFilled />
-                        </el-icon>
-                        <span>通知管理</span>
-                    </template>
-                    <el-menu-item index="3-1" :route="{name: 'inform_publish'}">
-                        <el-icon>
-                            <CirclePlusFilled />
-                        </el-icon>
-                        <span>发布通知</span>
-                    </el-menu-item>
-                    <el-menu-item index="3-2" :route="{name: 'inform_list'}">
-                        <el-icon>
-                            <List />
-                        </el-icon>
-                        <span>通知列表</span>
-                    </el-menu-item>
-                </el-sub-menu>
-                <el-sub-menu index="4">
-                    <template #title>
-                        <el-icon>
-                            <Avatar />
-                        </el-icon>
-                        <span>员工管理</span>
-                    </template>
-                    <el-menu-item index="4-1">
-                        <el-icon>
-                            <CirclePlusFilled />
-                        </el-icon>
-                        <span>新增员工</span>
-                    </el-menu-item>
-                    <el-menu-item index="4-2">
-                        <el-icon>
-                            <List />
-                        </el-icon>
-                        <span>员工列表</span>
-                    </el-menu-item>
-                </el-sub-menu>
+                </template>
+
             </el-menu>
         </el-aside>
         <el-container>
@@ -165,8 +142,7 @@ const onControlResetPwdDialog = () => {
                 <el-dropdown>
                     <span class="el-dropdown-link">
                         <el-avatar :size="30" icon="UserFilled" />
-                        <span style="margin-left:10px;">[{{ authStore.user.department.name }}]{{ authStore.user.realname
-                            }}</span>
+                        <span style="margin-left:10px;">[{{ displayUser.department.name }}]{{ displayUser.realname}}</span>
                         <el-icon class="el-icon--right">
                             <arrow-down />
                         </el-icon>
@@ -180,21 +156,23 @@ const onControlResetPwdDialog = () => {
                 </el-dropdown>
                 <!-- </div> -->
             </el-header>
-            <el-main class="main"><RouterView></RouterView></el-main>
+            <el-main class="main">
+                <RouterView></RouterView>
+            </el-main>
         </el-container>
     </el-container>
     <el-dialog v-model="dialogVisible" title="修改密码" width="500">
         <el-form :model="resetPwdForm" :rules="rules" ref="formTag">
             <el-form-item label="旧密码" :label-width="formLabelWidth" prop="oldpwd">
-                <el-input v-model="resetPwdForm.oldpwd" autocomplete="off" type="password"/>
+                <el-input v-model="resetPwdForm.oldpwd" autocomplete="off" type="password" />
             </el-form-item>
 
             <el-form-item label="新密码" :label-width="formLabelWidth" prop="pwd1">
-                <el-input v-model="resetPwdForm.pwd1" autocomplete="off" type="password"/>
+                <el-input v-model="resetPwdForm.pwd1" autocomplete="off" type="password" />
             </el-form-item>
 
             <el-form-item label="确认密码" :label-width="formLabelWidth" prop="pwd2">
-                <el-input v-model="resetPwdForm.pwd2" autocomplete="off" type="password"/>
+                <el-input v-model="resetPwdForm.pwd2" autocomplete="off" type="password" />
             </el-form-item>
         </el-form>
         <template #footer>

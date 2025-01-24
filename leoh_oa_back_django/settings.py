@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.inform',
     'apps.staff',
     'apps.image',
+    'apps.home'
 ]
 
 MIDDLEWARE = [
@@ -130,6 +131,10 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# 静态文件读取目录
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
@@ -156,3 +161,26 @@ REST_FRAMEWORK = {
 }
 
 APPEND_SLASH=False
+
+# 邮箱配置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Celery相关配置
+# 中间人的配置
+CELERY_BROKER_URL = 'redis://172.23.23.68:6379/1'
+# 指定结果的接受地址
+CELERY_RESULT_BACKEND = 'redis://172.23.23.68:6379/2'
+
+# 缓存设置
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://172.23.23.68:6379/3",
+    }
+}

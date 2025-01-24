@@ -4,6 +4,17 @@ import { defineStore } from 'pinia'
 const USER_KEY = "OA_USER_KEY"
 const TOKEN_KEY = "OA_TOKEN_KEY"
 
+export const PermissionChoice = {
+  // 普通员工权限
+  Staff: 0b000,
+  // 需要董事会权限
+  Boarder: 0b001,
+  // team Leader权限
+  Leader: 0b010,
+  // 所有权限
+  All: 0b111,
+}
+
 export const useAuthStore = defineStore('auth', () => {
   let _user = ref({})
   let _token = ref({})
@@ -54,6 +65,41 @@ export const useAuthStore = defineStore('auth', () => {
     return false
   })
 
+  let own_permissions = computed(() => {
+    let _permissions = PermissionChoice.Staff
+    if(is_logined.value){
+      // 判断是否董事会成员
+      if(user.value.department.name == '董事会'){
+        _permissions |= PermissionChoice.Boarder
+      }
+      // 判断是否team leader
+      if(user.value.department.leader_id == user.value.uid){
+        _permissions |= PermissionChoice.Leader
+      }
+    }
+    return _permissions
+  })
+
+  //opt可选值：
+  //// 1. |: 或运算
+  //// 2. &: 且运算
+  function has_permission(permissions, opt='|'){
+    let results = permissions.map((permission)=>(permission&own_permissions.value)==permission) 
+    if(opt=='|'){
+      if(results.indexOf(true)>=0){
+        return true
+      }else{
+        return false
+      }
+    }else{
+      if(results.indexOf(false)>=0){
+        return false
+      }else{
+        return true
+      }
+    }
+  }
+
   // 让外面访问必须返回
-  return { setUserToken, is_logined, clearUserToken, user, token }
+  return { setUserToken, is_logined, clearUserToken, user, token, has_permission }
 })
